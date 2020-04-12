@@ -27,6 +27,7 @@ var score2 = 0;
 var scoreText2;
 var game = new Phaser.Game(config);
 var punching=false;
+var timeEvent;
 
 function preload ()
 {
@@ -116,7 +117,7 @@ this.physics.add.collider(player,player2, punchplayer2, null, this);
         frameRate: 10,
         repeat: -1
     });
-    
+   
  //
     scoreText = this.add.text(16, 16, 'player1: 0', { fontSize: '32px', fill: '#000' });
     scoreText2 = this.add.text(540, 16, 'player2: 0', { fontSize: '32px', fill: '#000' });
@@ -134,7 +135,7 @@ player.flipX=true;
 player.anims.play('left',true);
 punching=false;
 }
-else if (cursors.shift.isDown)
+else if (Phaser.Key.checkDown("16","3000"))
 {
 console.log("pressed down key");
 player.setVelocityX(0);
@@ -175,13 +176,14 @@ function changeBlock (player, blocks)
             this.sound.play('brick');
             blocks.setTexture('dud_block');
             coin = this.physics.add.sprite(blocks.x, blocks.y-40, 'coin');
-            coin.body.setGravityY(300);
             coin.setBounce(1);
+            coin.body.setGravityY(300);
             this.physics.add.collider(coin, platforms);
             this.physics.add.collider(player, coin, collectCoin, null, this);
             coin.setVelocityX(60);  
             coin.setVelocityY(-300);
             coin.setCollideWorldBounds(true);
+            
         }
         if (Random==3)
         if (player.y>blocks.y+40)
@@ -226,10 +228,30 @@ function collectCoin (player, coin)
             this.sound.play('coin_sound');
              coin.destroy();
     }
+    
 function punchplayer2 (player,player2)
 {
+    
     if (punching==true)
+    if (score2>0)
     {
-        player2.destroy();
+        coin = this.physics.add.sprite(player2.x, player2.y-40, 'coin');
+        
+         console.log("1");
+        scoreText2.destroy();
+        scoreText2 = this.add.text(540, 16, 'player2: 0', { fontSize: '32px', fill: '#000' });
+        score2 -= 10;
+        scoreText2.setText('player2: ' + score2);
+            this.sound.play('coin_sound');
+        coin.setBounce(1);
+        coin.body.setGravityY(300);
+        this.physics.add.collider(coin, platforms);
+        this.physics.add.collider(player, coin, collectCoin, null, this);
+        coin.setVelocityX(60);  
+        coin.setVelocityY(-300);
+        coin.setCollideWorldBounds(true);
+        
+        
     }
-}
+        
+    }
