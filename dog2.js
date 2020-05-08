@@ -27,7 +27,6 @@ var score2 = 0;
 var scoreText2;
 var game = new Phaser.Game(config);
 var punching = false;
-var timeEvent;
  // Get key object
   var isDown2 = this.input.keyboard.checkDown(keyObj, "3000");
 
