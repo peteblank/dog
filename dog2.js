@@ -1,3 +1,4 @@
+
 var config = {
   type: Phaser.AUTO,
   width: 750,
@@ -14,6 +15,7 @@ var config = {
     create: create,
     update: update
   }
+  
 };
 var player;
 var platforms;
@@ -25,10 +27,13 @@ var score = 0;
 var scoreText;
 var score2 = 0;
 var scoreText2;
+var scoreText3;
 var game = new Phaser.Game(config);
 var punching = false;
+var timerevent=0;
+var initialTime;
  // Get key object
-  var isDown2 = this.input.keyboard.checkDown(keyObj, "3000");
+
 
 function preload() {
   this.load.image("platform", "assets/platform2.png");
@@ -55,6 +60,7 @@ function preload() {
 }
 
 function create() {
+
   var self = this;
 
   this.sound.add("brick");
@@ -137,12 +143,22 @@ function create() {
     fontSize: "32px",
     fill: "#000"
   });
+  this.initialTime=100;
+  scoreText3 = this.add.text(300, 16, formatTime(this.initialTime),
+   {
+    fontSize: "32px",
+    fill: "#000"
+  });
+  timerevent = this.time.addEvent({ delay: 1000, callback: onEvent, callbackScope: this, loop: true });
   //keys
   cursors = this.input.keyboard.createCursorKeys();
   var keyObj = this.input.keyboard.addKey('shift'); 
+  
 }
 //keys
+
 function update() {
+
   var  spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
   if (cursors.left.isDown) {
     player.setVelocityX(-160);
@@ -151,9 +167,9 @@ function update() {
     punching = false;
   } else if (Phaser.Input.Keyboard.JustDown(spacebar))
     {
-    console.log("pressed down key");
+    console.log(player.anims.getProgress(spacebar));
     player.setVelocityX(0);
-    player.anims.play("punch", true);
+    player.anims.play("punch");
     punching = true;
   } else if (cursors.right.isDown) {
     console.log("right");
@@ -162,14 +178,19 @@ function update() {
     player.anims.play("right", true);
     punching = false;
   } else {
+    if (punching==false){
     player.anims.play("turn", true);
+    }
     player.setVelocityX(0);
-    punching = false;
   }
   if (cursors.up.isDown && player.body.touching.down) {
     player.setVelocityY(-430);
     this.sound.play("jump");
     punching = false;
+  }
+  if (this.initialTime==0)
+  {
+    this.scene.restart();
   }
   this.physics.add.collider(player2, coin, collectCoin2, null, this);
 }
@@ -235,12 +256,27 @@ function collectCoin2(player2, coin) {
   this.sound.play("coin_sound");
   coin.destroy();
 }
-
+function onEvent ()
+    {
+        this.initialTime -= 1; // One second
+        scoreText3.setText(formatTime(this.initialTime));
+    }
+function formatTime(seconds){
+  // Minutes
+  var minutes = Math.floor(seconds/60);
+  // Seconds
+  var partInSeconds = seconds%60;
+  // Adds left zeros to seconds
+  partInSeconds = partInSeconds.toString().padStart(2,'0');
+  // Returns formated time
+  
+  return `${minutes}:${partInSeconds}`;
+}
 function punchplayer2(player, player2) {
   if (punching == true)
     if (score2 > 0) {
       coin = this.physics.add.sprite(player2.x, player2.y - 40, "coin");
-
+      punching = false;
       console.log("1");
       scoreText2.destroy();
       scoreText2 = this.add.text(540, 16, "player2: 0", {
@@ -258,4 +294,5 @@ function punchplayer2(player, player2) {
       coin.setVelocityY(-300);
       coin.setCollideWorldBounds(true);
     }
+    
 }
